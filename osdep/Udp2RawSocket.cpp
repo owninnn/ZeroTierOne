@@ -93,7 +93,10 @@ const uint16_t* Udp2RawSocket::getRecommendedPorts(unsigned int& count)
 bool Udp2RawSocket::createRawSocket(bool ipv6)
 {
 #ifdef _WIN32
-    _lastError = "Raw sockets not supported on Windows";
+    // Windows raw socket support using WinDivert would go here
+    // For now, just set state to error gracefully
+    _lastError = "Raw sockets not supported on Windows (WinDivert required)";
+    _state = STATE_ERROR;
     return false;
 #else
     _isIPv6 = ipv6;
@@ -146,6 +149,7 @@ bool Udp2RawSocket::createRawSocket(bool ipv6)
 bool Udp2RawSocket::bindToInterface(const InetAddress& localAddr)
 {
 #ifdef _WIN32
+    (void)localAddr;
     return false;
 #else
     if (_socket < 0) {
@@ -278,11 +282,14 @@ bool Udp2RawSocket::send(const InetAddress& remoteAddr, const void* data, unsign
 
 bool Udp2RawSocket::sendRaw(const InetAddress& remoteAddr, const void* packet, unsigned int len)
 {
-    if (_socket < 0) {
+    if (_socket == INVALID_SOCKET_VAL) {
         return false;
     }
     
 #ifdef _WIN32
+    (void)remoteAddr;
+    (void)packet;
+    (void)len;
     return false;
 #else
     ssize_t sent;
@@ -314,11 +321,15 @@ bool Udp2RawSocket::sendRaw(const InetAddress& remoteAddr, const void* packet, u
 
 int Udp2RawSocket::receive(void* buf, unsigned int bufLen, InetAddress& fromAddr, int timeoutMs)
 {
-    if (_socket < 0) {
+    if (_socket == INVALID_SOCKET_VAL) {
         return -1;
     }
     
 #ifdef _WIN32
+    (void)buf;
+    (void)bufLen;
+    (void)fromAddr;
+    (void)timeoutMs;
     return -1;
 #else
     // Use poll for timeout
