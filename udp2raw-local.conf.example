@@ -1,0 +1,71 @@
+// ZeroTier local.conf with udp2raw configuration
+// Place this in your ZeroTier home directory (e.g., /var/lib/zerotier-one/local.conf)
+
+{
+    "settings": {
+        // Udp2Raw configuration - enables UDP traffic encapsulation
+        // to bypass firewalls that block or throttle UDP
+        "udp2raw": {
+            // Mode: "disabled", "auto" (default), "preferred", "required"
+            // - disabled: completely disable udp2raw
+            // - auto: automatically upgrade to udp2raw when possible (default)
+            // - preferred: prefer udp2raw over standard UDP
+            // - required: require udp2raw (connections will fail without it)
+            "mode": "auto",
+            
+            // Transport mode: "tcp" (FakeTCP) or "icmp"
+            // FakeTCP disguises UDP as TCP traffic
+            // ICMP disguises UDP as ICMP echo requests
+            "transport": "tcp",
+            
+            // Local port for FakeTCP (0 = auto-select)
+            "localPort": 0,
+            
+            // Remote port for FakeTCP (default: 443 for HTTPS)
+            // Common ports that are usually allowed: 80, 443, 8080, 22
+            "remotePort": 443,
+            
+            // ICMP identifier (for ICMP mode)
+            "icmpId": 4660,
+            
+            // Probe interval in milliseconds (how often to check peer capability)
+            "probeInterval": 30000,
+            
+            // Handshake timeout in milliseconds
+            "handshakeTimeout": 10000,
+            
+            // Delay before falling back to UDP after udp2raw failure
+            "fallbackDelay": 60000,
+            
+            // Delay before upgrading established UDP paths to udp2raw
+            "upgradeDelay": 5000,
+            
+            // Auto-upgrade: automatically upgrade UDP paths to udp2raw
+            "autoUpgrade": true,
+            
+            // Auto-downgrade: automatically fall back to UDP on udp2raw failure
+            "autoDowngrade": true,
+            
+            // Verbose logging
+            "logVerbose": false,
+            
+            // Comma-separated list of TCP ports to try for FakeTCP
+            // These are tried in order if the default port fails
+            "fakeTcpPorts": "443,80,8080,8443,53,22"
+        },
+        
+        // Other ZeroTier settings...
+        "portMappingEnabled": true,
+        "primaryPort": 9993,
+        "allowManagementFrom": ["127.0.0.1/32"]
+    },
+    
+    // Physical path configuration (optional)
+    "physical": {
+        // Example: specific settings for a network
+        "192.168.1.0/24": {
+            // Disable udp2raw for this network
+            "udp2rawEnabled": false
+        }
+    }
+}

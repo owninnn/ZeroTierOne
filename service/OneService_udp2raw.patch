@@ -1,0 +1,38 @@
+--- a/service/OneService.cpp
++++ b/service/OneService.cpp
+@@ -19,6 +19,8 @@
+ #include "OneService.hpp"
+ 
+ #include "../node/Constants.hpp"
++#include "../node/Udp2RawConfig.hpp"
++#include "../osdep/Udp2RawSocket.hpp"
+ 
+ #ifdef __UNIX_LIKE__
+ #include <unistd.h>
+@@ -1635,6 +1637,25 @@ class OneServiceImpl : public OneService
+ 			}
+ 		}
+ 
++		// Udp2Raw configuration
++		json& udp2raw = settings["udp2raw"];
++		if (udp2raw.is_object()) {
++			// Load udp2raw configuration
++			Udp2RawConfig::getInstance().loadFromJson(&udp2raw);
++			
++			if (Udp2RawConfig::getInstance().isEnabled()) {
++				fprintf(stderr, "[udp2raw] Enabled (mode: %s)\n", 
++					Udp2RawConfig::getModeName(Udp2RawConfig::getInstance().getSettings().mode));
++				
++				// Check if system supports udp2raw
++				if (!Udp2RawSocket::isSupported()) {
++					fprintf(stderr, "[udp2raw] WARNING: Raw sockets not supported on this platform\n");
++				}
++				if (!Udp2RawSocket::hasPrivileges()) {
++					fprintf(stderr, "[udp2raw] WARNING: No privileges for raw sockets (run as root or with CAP_NET_RAW)\n");
++				}
++			}
++		}
++
+ 		// Set trusted paths if there are any
+ 		if (! ppc.empty()) {
+ 			for (std::map<InetAddress, ZT_PhysicalPathConfiguration>::iterator i(ppc.begin()); i != ppc.end(); ++i)

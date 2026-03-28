@@ -13,11 +13,13 @@
 #include "Constants.hpp"
 #include "InetAddress.hpp"
 #include "Packet.hpp"
+#include "PathUdp2Raw.hpp"
 #include "RingBuffer.hpp"
 #include "SharedPtr.hpp"
 #include "Utils.hpp"
 
 #include <algorithm>
+#include <memory>
 #include <stdexcept>
 #include <stdint.h>
 #include <stdlib.h>
@@ -454,8 +456,56 @@ class Path {
 		return _ifname;
 	}
 
+	/**
+	 * Initialize udp2raw for this path
+	 * @param localAddr Local address
+	 * @param config Udp2raw configuration
+	 * @return true on success
+	 */
+	bool initUdp2Raw(const InetAddress& localAddr, const PathUdp2Raw::Config& config);
+
+	/**
+	 * Check if udp2raw is active for this path
+	 * @return true if udp2raw is established and ready
+	 */
+	inline bool hasUdp2Raw() const
+	{
+		return _udp2Raw && _udp2Raw->isActive();
+	}
+
+	/**
+	 * Get udp2raw state for this path
+	 * @return Current udp2raw state
+	 */
+	inline PathUdp2Raw::Udp2RawState getUdp2RawState() const
+	{
+		return _udp2Raw ? _udp2Raw->getState() : PathUdp2Raw::UDP2RAW_DISABLED;
+	}
+
+	/**
+	 * Send data via udp2raw if available
+	 * @param data Data to send
+	 * @param len Data length
+	 * @return true if sent via udp2raw
+	 */
+	bool sendUdp2Raw(const void* data, unsigned int len);
+
+	/**
+	 * Process incoming packet for udp2raw
+	 * @param data Packet data
+	 * @param len Packet length
+	 * @return true if packet was consumed by udp2raw
+	 */
+	bool processUdp2RawPacket(const void* data, unsigned int len);
+
+	/**
+	 * Shutdown udp2raw for this path
+	 */
+	void shutdownUdp2Raw();
+
   private:
 	char _ifname[ZT_MAX_PHYSIFNAME] = {};
+	std::unique_ptr<PathUdp2Raw> _udp2Raw;
 
 	volatile int64_t _lastOut;
 	volatile int64_t _lastIn;
