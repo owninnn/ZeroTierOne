@@ -56,7 +56,15 @@ public:
     };
     
     // Udp2Raw packet header (followed by encrypted ZeroTier payload)
-    struct __attribute__((packed)) PacketHeader {
+#ifdef _WIN32
+#pragma pack(push, 1)
+#endif
+    struct
+#ifdef _WIN32
+#else
+    __attribute__((packed))
+#endif
+    PacketHeader {
         uint32_t magic;       // Magic number
         uint8_t version;      // Protocol version
         uint8_t packetType;   // Packet type
@@ -68,7 +76,12 @@ public:
     };
     
     // TCP header for FakeTCP mode (20 bytes minimum)
-    struct __attribute__((packed)) TcpHeader {
+    struct
+#ifdef _WIN32
+#else
+    __attribute__((packed))
+#endif
+    TcpHeader {
         uint16_t sourcePort;
         uint16_t destPort;
         uint32_t seqNum;
@@ -81,13 +94,21 @@ public:
     };
     
     // ICMP header for ICMP mode
-    struct __attribute__((packed)) IcmpHeader {
+    struct
+#ifdef _WIN32
+#else
+    __attribute__((packed))
+#endif
+    IcmpHeader {
         uint8_t type;
         uint8_t code;
         uint16_t checksum;
         uint16_t id;
         uint16_t seq;
     };
+#ifdef _WIN32
+#pragma pack(pop)
+#endif
     
     // TCP flags
     static constexpr uint8_t TCP_FLAG_FIN = 0x01;

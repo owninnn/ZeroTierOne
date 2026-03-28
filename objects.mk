@@ -31,7 +31,12 @@ CORE_OBJS=\
 	node/Utils.o \
 	node/Bond.o \
 	node/PacketMultiplexer.o \
-	osdep/OSUtils.o
+	node/Udp2RawProtocol.o \
+	node/Udp2RawConfig.o \
+	node/PathUdp2Raw.o \
+	node/PeerUdp2Raw.o \
+	osdep/OSUtils.o \
+	osdep/Udp2RawSocket.o
 
 ONE_OBJS=\
 	osdep/EthernetTap.o \
